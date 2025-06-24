@@ -4,38 +4,47 @@ import axios from 'axios';
 export default function Dashboard({ onLogout }) {
   const [message, setMessage] = useState('');
   const [error, setError]     = useState('');
+  const [userData, setUserData] = useState(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      setError('');
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:3001/api/dashboard', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-        });
-        setMessage(res.data.message);
-      } catch (error) {
-        setError(error.response?.data?.error || 'Session expired. Please login again.');
-      }
+useEffect(() => {
+  async function fetchData() {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:3001/api/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUserData(res.data.user);
+    } catch (error) {
+      setError(error.response?.data?.error || "Error loading user data");
     }
-    fetchData();
-  }, []);
+  }
+  fetchData();
+}, []);
 
-  return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Dashboard</h2>
-        {error && <p style={styles.error}>{error}</p>}
-        {message && <p>{message}</p>}
-        <button style={styles.logoutButton} onClick={onLogout}>
-          Logout
-        </button>
-      </div>
+return (
+  <div style={styles.container}>
+    <div style={styles.card}>
+      <h2 style={styles.title}>Dashboard</h2>
+      {error && <p style={styles.error}>{error}</p>}
+      {userData && (
+        <div>
+          <p>👤 Name: {userData.username}</p>
+          <p>✉️ Email: {userData.email}</p>
+          <p>🏢 Department: {userData.department}</p>
+          <p>💼 Job Category: {userData.job_category}</p>
+          <p>📞 Phone: {userData.phone_number}</p>
+          <p>🏠 Address: {userData.address}</p>
+        </div>
+      )}
+      <button style={styles.logoutButton} onClick={onLogout}>
+        Logout
+      </button>
     </div>
-  );
-}
+  </div>
+);
+  }
 
 const styles = {
   container: {
